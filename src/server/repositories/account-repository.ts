@@ -22,6 +22,8 @@ export type NewAccountRow = Omit<AccountRow, "created_at" | "updated_at"> & {
 
 export interface AccountRepository {
   emailExists(email: string): Promise<boolean>;
+  /** Returns the account with this (already normalized) email, or null. */
+  findByEmail(email: string): Promise<AccountRow | null>;
   insert(account: NewAccountRow): Promise<AccountRow>;
 }
 
@@ -39,6 +41,16 @@ export function createSupabaseAccountRepository(
         .maybeSingle();
       if (error) throw error;
       return data !== null;
+    },
+
+    async findByEmail(email) {
+      const { data, error } = await supabase
+        .from("accounts")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
+      if (error) throw error;
+      return (data as AccountRow | null) ?? null;
     },
 
     async insert(account) {

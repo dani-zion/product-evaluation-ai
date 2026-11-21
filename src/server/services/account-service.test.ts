@@ -1,7 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { signUpSchema } from "@/features/auth/schemas";
 import { hashPassword, verifyPassword } from "@/lib/password";
-import { EmailAlreadyInUseError } from "@/server/errors";
+import {
+  EmailAlreadyInUseError,
+  InvalidCredentialsError,
+} from "@/server/errors";
 import {
   createInMemoryAccountRepository,
   validSignUp,
@@ -69,5 +72,81 @@ describe("accountService.signUp", () => {
     const a = await service.signUp(input);
     const b = await service.signUp({ ...input, email: "grace@example.com" });
     expect(a.id).not.toBe(b.id);
+  });
+});
+
+describe("accountService.signIn", () => {
+  const credentials = {
+    email: "ada@example.com",
+    password: validSignUp.password,
+  };
+
+  async function signedUp() {
+    const ctx = setup();
+    const account = await ctx.service.signUp(input);
+    return { ...ctx, account };
+  }
+
+  it("returns the public account for correct credentials", async () => {
+    const { service, account } = await signedUp();
+
+    const result = await service.signIn(credentials);
+
+    expect(result).toEqual(account);
+    expect(result).not.toHaveProperty("password");
+    expect(result).not.toHaveProperty("salt");
+  });
+
+  it("rejects a wrong password", async () => {
+    const { service } = await signedUp();
+
+    await expect(
+      service.signIn({ ...credentials, password: "wrong-password" }),
+    ).rejects.toBeInstanceOf(InvalidCredentialsError);
+  });
+
+  it("rejects an unknown email, still running one password compare", async () => {
+    const { repository } = createInMemoryAccountRepository();
+    const verify = vi.fn().mockResolvedValue(false);
+    const service = createAccountService({
+      repository,
+      verifyPassword: verify,
+    });
+
+    await expect(
+      service.signIn({ ...credentials, email: "nobody@example.com" }),
+    ).rejects.toBeInstanceOf(InvalidCredentialsError);
+    expect(verify).toHaveBeenCalledTimes(1);
+    expect(verify.mock.calls[0][1]).toMatch(/^\$2b\$12\$/);
+  });
+
+  it("rejects an inactive account even with the right password", async () => {
+    const { service, rows } = await signedUp();
+    rows[0].active = false;
+
+    await expect(service.signIn(credentials)).rejects.toBeInstanceOf(
+      InvalidCredentialsError,
+    );
+  });
+
+  it("uses the same message for every failure", async () => {
+    const { service, rows } = await signedUp();
+    const message = (promise: Promise<unknown>) =>
+      promise.catch((error: Error) => error.message);
+
+    const unknown = await message(
+      service.signIn({ ...credentials, email: "nobody@example.com" }),
+    );
+    const wrong = await message(
+      service.signIn({ ...credentials, password: "nope" }),
+    );
+    rows[0].active = false;
+    const inactive = await message(service.signIn(credentials));
+
+    expect([unknown, wrong, inactive]).toEqual([
+      "Email or password is incorrect.",
+      "Email or password is incorrect.",
+      "Email or password is incorrect.",
+    ]);
   });
 });
