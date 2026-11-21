@@ -1,0 +1,140 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* The app is dark only: `dark:` variants in Shadcn components always apply. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-sans);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-marker: var(--marker);
+  --color-sage: var(--sage);
+  --color-ink: var(--ink);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+}
+
+/*
+ * Palette: "shopper's highlighter" on deep plum.
+ *   ink plum #1C1726 · raised plum #262033 · seam #3A3247
+ *   paper #EDE8F2 · mist #A79FB5
+ *   marker #F2D46B · sage #8FC9A3 · coral red #F07A72
+ */
+:root {
+  color-scheme: dark;
+
+  --ink: #1c1726;
+  --raised: #262033;
+  --seam: #3a3247;
+  --paper: #ede8f2;
+  --mist: #a79fb5;
+  --marker: #f2d46b;
+  --sage: #8fc9a3;
+  --coral: #f07a72;
+
+  --background: var(--ink);
+  --foreground: var(--paper);
+  --card: var(--raised);
+  --card-foreground: var(--paper);
+  --popover: var(--raised);
+  --popover-foreground: var(--paper);
+  --primary: var(--marker);
+  --primary-foreground: var(--ink);
+  --secondary: var(--seam);
+  --secondary-foreground: var(--paper);
+  --muted: var(--raised);
+  --muted-foreground: var(--mist);
+  --accent: var(--seam);
+  --accent-foreground: var(--paper);
+  --destructive: var(--coral);
+  --border: var(--seam);
+  --input: var(--seam);
+  --ring: var(--marker);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+    font-optical-sizing: auto;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  ::selection {
+    background: var(--marker);
+    color: var(--ink);
+  }
+}
+
+@layer components {
+  /* Condensed, heavy headline type: the type carries the identity. */
+  .font-display {
+    font-weight: 800;
+    font-stretch: 75%;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  /*
+   * The one bold element: a marker stroke behind the verdict.
+   * It draws in once on load; reduced-motion users see it already drawn.
+   */
+  .marker {
+    color: var(--ink);
+    padding: 0.05em 0.3em;
+    margin: 0 -0.1em;
+    border-radius: 0.3em 0.15em 0.35em 0.2em;
+    background:
+      linear-gradient(
+        100deg,
+        color-mix(in oklab, var(--marker) 88%, transparent) 0%,
+        var(--marker) 12%,
+        var(--marker) 92%,
+        color-mix(in oklab, var(--marker) 80%, transparent) 100%
+      )
+      no-repeat 0 0 / 100% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    animation: marker-draw 900ms cubic-bezier(0.65, 0, 0.25, 1) 400ms both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marker {
+      animation: none;
+    }
+  }
+}
+
+@keyframes marker-draw {
+  from {
+    background-size: 0% 100%;
+    color: var(--paper);
+  }
+}
