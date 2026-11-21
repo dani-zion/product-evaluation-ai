@@ -35,6 +35,7 @@ supabase/**/.env*
 
 # Claude Code local (per-user) settings
 .claude/settings.local.json
+.claude/worktrees/
 
 # ─── Dependencies ───────────────────────────────────────────────────────
 /node_modules

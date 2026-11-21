@@ -12,6 +12,9 @@ export function createInMemoryAccountRepository() {
     async emailExists(email) {
       return rows.some((row) => row.email === email);
     },
+    async findByEmail(email) {
+      return rows.find((row) => row.email === email) ?? null;
+    },
     async insert(account) {
       if (rows.some((row) => row.email === account.email)) {
         throw new EmailAlreadyInUseError();

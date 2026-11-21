@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlertIcon, Loader2Icon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { Controller, type Path, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -59,6 +60,7 @@ const inputClassName = "h-11 bg-card px-3 dark:bg-card";
 export function SignUpForm() {
   const router = useRouter();
   const signUp = useSignUp();
+  const [formKey, setFormKey] = useState(0);
 
   const form = useForm<SignUpFormValues, unknown, SignUpInput>({
     resolver: zodResolver(signUpSchema),
@@ -73,12 +75,25 @@ export function SignUpForm() {
     },
   });
 
+  /**
+   * Clears the form after a successful submit. With cacheComponents, Next keeps
+   * a page we navigate away from mounted (hidden), so without this the values,
+   * including the password, would still be there when the person comes back.
+   * Bumping the key also remounts the inputs, so show/hide toggles reset.
+   */
+  function clearForm() {
+    form.reset();
+    signUp.reset();
+    setFormKey((key) => key + 1);
+  }
+
   function onSubmit(values: SignUpInput) {
     signUp.mutate(values, {
       onSuccess: () => {
         toast.success("Account created", {
           description: `Welcome, ${values.firstName}.`,
         });
+        clearForm();
         router.push("/auth/sign-up/success");
       },
       onError: (error) => {
@@ -148,7 +163,7 @@ export function SignUpForm() {
   }
 
   return (
-    <form noValidate onSubmit={form.handleSubmit(onSubmit)}>
+    <form key={formKey} noValidate onSubmit={form.handleSubmit(onSubmit)}>
       <FieldGroup className="gap-6">
         {serverError && (
           <Alert

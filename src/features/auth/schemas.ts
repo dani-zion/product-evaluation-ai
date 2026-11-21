@@ -44,3 +44,25 @@ export const signUpSchema = z
 
 export type SignUpFormValues = z.input<typeof signUpSchema>;
 export type SignUpInput = z.output<typeof signUpSchema>;
+
+/**
+ * Sign-in input, shared by the form and the API. The password is only checked
+ * for presence and bcrypt's byte limit: its strength was enforced at sign-up.
+ */
+export const signInSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .pipe(z.email("Enter a valid email address")),
+  password: z
+    .string()
+    .min(1, "Enter your password")
+    .refine(
+      (value) => new TextEncoder().encode(value).length <= PASSWORD_MAX_BYTES,
+      "Password is too long",
+    ),
+});
+
+export type SignInFormValues = z.input<typeof signInSchema>;
+export type SignInInput = z.output<typeof signInSchema>;

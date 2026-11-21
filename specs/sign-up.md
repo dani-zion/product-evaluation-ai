@@ -47,7 +47,7 @@
 - React.js, Next.js, React-Hook-Form, Shadcn, Tailwind, Supabase, TRCP, Bunjs
 
 ## Acceptance criteria
-- When we have a new page/UI to create a new account in `/auth/sign-up``
+- When we have a new page/UI to create a new account in `/auth/sign-up`
 - The account creation form has validation
 - Inform possible errors, with a red alert on the form 
 - Navigate to `/auth/sign-up/success` when successfully created the account and also show a popup/alert with a confirmation message

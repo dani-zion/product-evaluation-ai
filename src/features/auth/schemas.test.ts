@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 import { validSignUp } from "@/test/in-memory-account-repository";
-import { signUpSchema } from "./schemas";
+import { signInSchema, signUpSchema } from "./schemas";
 
 function fieldErrors(input: unknown) {
   const result = signUpSchema.safeParse(input);
@@ -66,5 +66,38 @@ describe("signUpSchema", () => {
       confirmPassword: "something-else",
     });
     expect(errors.confirmPassword).toEqual(["Passwords do not match"]);
+  });
+});
+
+describe("signInSchema", () => {
+  const valid = { email: "ada@example.com", password: "correct-horse-battery" };
+
+  function signInErrors(input: unknown) {
+    const result = signInSchema.safeParse(input);
+    return result.success ? {} : z.flattenError(result.error).fieldErrors;
+  }
+
+  it("accepts valid data and normalizes the email", () => {
+    expect(
+      signInSchema.parse({ ...valid, email: " Ada@Example.COM " }),
+    ).toEqual(valid);
+  });
+
+  it("rejects an invalid email", () => {
+    expect(signInErrors({ ...valid, email: "not-an-email" }).email).toEqual([
+      "Enter a valid email address",
+    ]);
+  });
+
+  it("rejects an empty password", () => {
+    expect(signInErrors({ ...valid, password: "" }).password).toEqual([
+      "Enter your password",
+    ]);
+  });
+
+  it("rejects a password longer than bcrypt's 72-byte limit", () => {
+    expect(
+      signInErrors({ ...valid, password: "a".repeat(73) }).password,
+    ).toEqual(["Password is too long"]);
   });
 });
