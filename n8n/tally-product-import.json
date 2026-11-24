@@ -1,0 +1,148 @@
+{
+  "name": "Tally product import",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "id": "0101291f-6914-4291-9761-18a07a5e36e4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://www.amazon.com.br/blackfriday",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [224, 0],
+      "id": "cc0237e6-2326-41ab-bd91-368ca28e01ca",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "extractHtmlContent",
+        "extractionValues": {
+          "values": [
+            {
+              "key": "name",
+              "cssSelector": ".dcl-product-label",
+              "returnArray": true
+            },
+            {
+              "key": "price",
+              "cssSelector": ".a-price-whole",
+              "returnArray": true
+            },
+            {
+              "key": "url",
+              "cssSelector": ".dcl-product-link",
+              "returnValue": "attribute",
+              "attribute": "href",
+              "returnArray": true
+            },
+            {
+              "key": "image",
+              "cssSelector": ".dcl-dynamic-image",
+              "returnValue": "attribute",
+              "attribute": "src",
+              "returnArray": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [448, 0],
+      "id": "ff30fbed-7626-49db-aae9-bcc7c89ee3de",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.all()[0].json;\nconst BASE = \"https://www.amazon.com.br\";\n\n// Amazon's links are relative (\"/dp/…\"); make them absolute.\nconst absolute = (href) =>\n  !href ? \"\" : href.startsWith(\"http\") ? href : BASE + (href.startsWith(\"/\") ? \"\" : \"/\") + href;\n\nreturn data.name.map((name, i) => ({\n  json: {\n    name,\n    link: absolute(data.url[i]),\n    image: data.image[i],\n  },\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [672, 0],
+      "id": "088cc3ca-ce96-448e-b7cc-f4acbaf1e942",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/v1/products",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_PRODUCTS_API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [896, 0],
+      "id": "937e044d-8426-446a-b89f-4b83230f124a",
+      "name": "HTTP Request1"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "pinData": {}
+}

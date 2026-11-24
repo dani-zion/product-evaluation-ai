@@ -164,7 +164,15 @@ To go through the list, pass the `nextCursor` from one page as `cursor` to get t
 
 ### Importing products with n8n
 
-A typical workflow has four nodes: **HTTP Request** (fetch the store page), **HTML** (extract the products), **Code** (shape them) and **HTTP Request** (send them to Tally).
+A ready-made workflow is in [`n8n/tally-product-import.json`](n8n/tally-product-import.json). To use it:
+
+1. In n8n, open **Workflows → Create Workflow**, then **⋯ → Import from File** and choose the file.
+2. In the last **HTTP Request** node, replace `YOUR_PRODUCTS_API_KEY` with your key, and point the URL at your app if it isn't running locally.
+3. Click **Execute workflow**.
+
+Don't export your workflow back into the repo with the real key in it.
+
+It has four nodes: **HTTP Request** (fetch the store page), **HTML** (extract the products), **Code** (shape them) and **HTTP Request** (send them to Tally).
 
 **HTML node.** Extract each field as an array. For the product link, set **Return Value** to **Attribute** and **Attribute** to `href`. For the image, use the `src` attribute. Without that, n8n returns the link's text instead of its address, and Tally rejects the product with a `400`.
 
@@ -230,6 +238,8 @@ src/
     trpc/                  tRPC setup and routers
     auth/                  session cookie
   lib/                     helpers: password hashing, ids, tRPC client
+n8n/
+  tally-product-import.json  n8n workflow that imports products (key removed)
 supabase/
   migrations/              database tables, in order
   seed.sql                 sample products (optional)
