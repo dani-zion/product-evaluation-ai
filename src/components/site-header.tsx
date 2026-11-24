@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { HeaderAccount } from "@/components/header-account";
+import { TallyLogo } from "@/components/tally-logo";
 import { UserAvatar } from "@/components/user-avatar";
 import { getSession } from "@/server/auth/session";
 
@@ -9,9 +10,10 @@ export function SiteHeader() {
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-6 pt-6 sm:px-10 sm:pt-8">
       <Link
         href="/"
-        className="font-display rounded-sm text-2xl text-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/60"
+        aria-label="Tally, home"
+        className="rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/60"
       >
-        Product Evaluation AI
+        <TallyLogo />
       </Link>
       {/* The session is read per request; the rest of the header stays static. */}
       <Suspense fallback={<div aria-hidden className="h-10" />}>

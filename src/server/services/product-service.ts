@@ -92,8 +92,8 @@ export function createProductService({
         id: generateId(),
         name: input.name,
         description: input.description ?? null,
-        image_url: input.imageUrl ?? null,
-        external_link: input.externalLink,
+        image_url: input.image ?? null,
+        external_link: input.link,
       });
       return toProduct(row);
     },

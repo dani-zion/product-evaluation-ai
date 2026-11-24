@@ -27,9 +27,7 @@ export async function generateMetadata({
   const { id } = await params;
   const product = await getProduct(id);
   return {
-    title: product
-      ? `${product.name} | Product Evaluation AI`
-      : "Product not found | Product Evaluation AI",
+    title: product ? `${product.name} | Tally` : "Product not found | Tally",
     description: product?.description ?? undefined,
   };
 }

@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Account created | Product Evaluation AI",
+  title: "Account created | Tally",
 };
 
 export default function SignUpSuccessPage() {

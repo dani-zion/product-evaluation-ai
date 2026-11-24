@@ -23,8 +23,19 @@ export type ProductPage = {
   nextCursor: string | null;
 };
 
+/**
+ * Characters a real URL never contains unencoded. `z.url()` alone accepts
+ * them (it parses like a browser address bar), which let scraped page text
+ * such as "https://shop/[img]Product name 42% off" through as a "link".
+ */
+const UNSAFE_URL_CHARACTERS = /[\s[\]<>"{}|\\^`]/;
+
 const absoluteUrl = (protocol: RegExp, message: string) =>
-  z.string().trim().pipe(z.url({ protocol, message }));
+  z
+    .string()
+    .trim()
+    .refine((value) => !UNSAFE_URL_CHARACTERS.test(value), message)
+    .pipe(z.url({ protocol, message }));
 
 /** Empty strings and null mean "not given" for optional fields. */
 const optional = <T extends z.ZodType>(schema: T) =>
@@ -36,7 +47,11 @@ const optional = <T extends z.ZodType>(schema: T) =>
     schema.optional(),
   );
 
-/** Input for POST /api/v1/products. */
+/**
+ * Input for POST /api/v1/products. Field names match what the n8n ingestion
+ * workflow sends (`name`, `link`, `image`); the API response still uses
+ * `externalLink` and `imageUrl` (see `Product`).
+ */
 export const createProductSchema = z.object({
   name: z
     .string()
@@ -55,13 +70,10 @@ export const createProductSchema = z.object({
         `Description must be at most ${PRODUCT_DESCRIPTION_MAX} characters`,
       ),
   ),
-  imageUrl: optional(
-    absoluteUrl(/^https$/, "Image URL must be an absolute https:// URL"),
+  image: optional(
+    absoluteUrl(/^https$/, "Image must be an absolute https:// URL"),
   ),
-  externalLink: absoluteUrl(
-    /^https?$/,
-    "External link must be an absolute http(s):// URL",
-  ),
+  link: absoluteUrl(/^https?$/, "Link must be an absolute http(s):// URL"),
 });
 
 export type CreateProductInput = z.output<typeof createProductSchema>;
