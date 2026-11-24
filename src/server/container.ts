@@ -1,4 +1,6 @@
 import "server-only";
+import { productSummarySchema } from "@/features/summaries/schemas";
+import { getProductSummaryAgent } from "@/server/ai/product-summary-agent";
 import { getSupabase } from "@/server/db/supabase";
 import { createSupabaseAccountRepository } from "@/server/repositories/account-repository";
 import { createSupabaseEvaluationRepository } from "@/server/repositories/evaluation-repository";
@@ -15,6 +17,10 @@ import {
   createProductService,
   type ProductService,
 } from "@/server/services/product-service";
+import {
+  createSummaryService,
+  type SummaryService,
+} from "@/server/services/summary-service";
 
 /**
  * Builds the real services. Created lazily so that importing a route does not
@@ -36,5 +42,17 @@ export function getEvaluationService(): EvaluationService {
   return createEvaluationService({
     repository: createSupabaseEvaluationRepository(getSupabase()),
     productService: getProductService(),
+  });
+}
+
+/** Product summaries, written by the Mastra agent (needs OPENAI_API_KEY). */
+export function getSummaryService(): SummaryService {
+  return createSummaryService({
+    async summarize(prompt) {
+      const response = await getProductSummaryAgent().generate(prompt, {
+        structuredOutput: { schema: productSummarySchema },
+      });
+      return response.object;
+    },
   });
 }
