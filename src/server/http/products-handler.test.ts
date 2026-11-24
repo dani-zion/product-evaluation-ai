@@ -7,6 +7,7 @@ import {
   createInMemoryProductRepository,
   makeProductRows,
   validProduct,
+  validProductAsReturned,
 } from "@/test/in-memory-product-repository";
 import {
   createCreateProductHandler,
@@ -116,7 +117,7 @@ describe("POST /api/v1/products", () => {
     const body = await response.json();
     expect(body.product).toMatchObject({
       id: rows[0].id,
-      ...validProduct,
+      ...validProductAsReturned,
       score: null,
     });
   });
@@ -125,14 +126,14 @@ describe("POST /api/v1/products", () => {
     const { POST, rows } = setup();
 
     const response = await POST(
-      post({ name: "", imageUrl: "http://x.example.com/a.jpg" }),
+      post({ name: "", image: "http://x.example.com/a.jpg" }),
     );
 
     expect(response.status).toBe(400);
     const body = await response.json();
     expect(Object.keys(body.fieldErrors).sort()).toEqual([
-      "externalLink",
-      "imageUrl",
+      "image",
+      "link",
       "name",
     ]);
     expect(rows).toHaveLength(0);

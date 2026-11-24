@@ -72,6 +72,14 @@ export function makeProductRows(count: number): ProductRow[] {
 export const validProduct = {
   name: "Aero 2 wireless headphones",
   description: "Over-ear, noise cancelling, about 30 hours per charge.",
-  imageUrl: "https://images.example.com/aero-2.jpg",
-  externalLink: "https://shop.example.com/aero-2",
+  image: "https://images.example.com/aero-2.jpg",
+  link: "https://shop.example.com/aero-2",
+};
+
+/** `validProduct` as the API returns it (response field names). */
+export const validProductAsReturned = {
+  name: validProduct.name,
+  description: validProduct.description,
+  imageUrl: validProduct.image,
+  externalLink: validProduct.link,
 };

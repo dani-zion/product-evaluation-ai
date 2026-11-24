@@ -16,20 +16,20 @@ describe("createProductSchema", () => {
   it("makes description and image optional", () => {
     const data = createProductSchema.parse({
       name: "Kettle",
-      externalLink: "https://shop.example.com/kettle",
+      link: "https://shop.example.com/kettle",
     });
     expect(data.description).toBeUndefined();
-    expect(data.imageUrl).toBeUndefined();
+    expect(data.image).toBeUndefined();
   });
 
   it("treats empty or null optional fields as not given", () => {
     const data = createProductSchema.parse({
       ...validProduct,
       description: "  ",
-      imageUrl: null,
+      image: null,
     });
     expect(data.description).toBeUndefined();
-    expect(data.imageUrl).toBeUndefined();
+    expect(data.image).toBeUndefined();
   });
 
   it("trims the name and requires it", () => {
@@ -55,11 +55,11 @@ describe("createProductSchema", () => {
     expect(
       fieldErrors({
         ...validProduct,
-        imageUrl: "http://images.example.com/a.jpg",
-      }).imageUrl,
-    ).toEqual(["Image URL must be an absolute https:// URL"]);
+        image: "http://images.example.com/a.jpg",
+      }).image,
+    ).toEqual(["Image must be an absolute https:// URL"]);
     expect(
-      fieldErrors({ ...validProduct, imageUrl: "/relative.jpg" }).imageUrl,
+      fieldErrors({ ...validProduct, image: "/relative.jpg" }).image,
     ).toBeDefined();
   });
 
@@ -67,18 +67,20 @@ describe("createProductSchema", () => {
     expect(
       createProductSchema.safeParse({
         ...validProduct,
-        externalLink: "http://shop.example.com/a",
+        link: "http://shop.example.com/a",
       }).success,
     ).toBe(true);
-    for (const externalLink of [
+    for (const link of [
       undefined,
       "not a url",
       "ftp://shop.example.com/a",
       "javascript:alert(1)",
+      // Scraped text glued to a base URL (a real n8n mistake): spaces, brackets.
+      "https://www.amazon.com.br/[https://m.media-amazon.com/i.jpg]Crime no Copan42% off",
+      "https://shop.example.com/a b",
+      "https://shop.example.com/<script>",
     ]) {
-      expect(
-        fieldErrors({ ...validProduct, externalLink }).externalLink,
-      ).toBeDefined();
+      expect(fieldErrors({ ...validProduct, link }).link).toBeDefined();
     }
   });
 });

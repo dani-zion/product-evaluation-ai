@@ -5,6 +5,7 @@ import {
   createInMemoryProductRepository,
   makeProductRows,
   validProduct,
+  validProductAsReturned,
 } from "@/test/in-memory-product-repository";
 import {
   createProductService,
@@ -147,14 +148,14 @@ describe("productService.create and getById", () => {
 
     expect(rows).toHaveLength(1);
     expect(product.id).toMatch(/^[A-Za-z0-9_-]{21}$/);
-    expect(product).toMatchObject({ ...validProduct, score: null });
+    expect(product).toMatchObject({ ...validProductAsReturned, score: null });
   });
 
   it("stores missing optional fields as null", async () => {
     const { service, rows } = setup();
     await service.create({
       name: "Kettle",
-      externalLink: "https://shop.example.com/kettle",
+      link: "https://shop.example.com/kettle",
     });
     expect(rows[0].description).toBeNull();
     expect(rows[0].image_url).toBeNull();

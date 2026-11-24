@@ -15,9 +15,9 @@ const bricolage = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Product Evaluation AI",
+  title: "Tally",
   description:
-    "Know what you're buying before you buy it. Plain-language verdicts from reviews and specs.",
+    "Tally reads the reviews so you can buy with confidence. Browse products and see what people say about them.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
