@@ -18,6 +18,7 @@ Tally helps shoppers decide before they buy. It collects products from online st
 
 - **Browse products.** The home page lists every product, with its image, a short description and its score. More load as you scroll, and no account is needed.
 - **See what people think.** Each product page shows the average score, every evaluation, and a link to buy it in the store.
+- **Read Tally's summary.** An AI agent reads a product's evaluations and sums them up in one sentence, with what people like and what to watch for.
 - **Add your evaluation.** Signed-in users give a score from 1 to 5 and a comment. It appears instantly, and the product's score updates.
 - **Bring in products automatically.** An [n8n](https://n8n.io) workflow scrapes store pages and sends products to Tally's API, protected by an API key.
 
@@ -26,7 +27,7 @@ Tally helps shoppers decide before they buy. It collects products from online st
 1. An n8n workflow reads a store page and sends each product (name, link, image) to `POST /api/v1/products`.
 2. The products appear on the home page.
 3. Shoppers open a product, read the evaluations, and add their own after signing in.
-4. Each new evaluation updates the product's average score, which the home page shows.
+4. Each new evaluation updates the product's average score, and Tally's AI agent writes a fresh summary of the evaluations on the next visit.
 
 ## Built with
 
@@ -37,6 +38,7 @@ Tally helps shoppers decide before they buy. It collects products from online st
 | Data fetching | tRPC 11 with TanStack Query, plus REST endpoints for external clients |
 | Forms and validation | React Hook Form, Zod |
 | Database | [Supabase](https://supabase.com) (PostgreSQL) |
+| AI | [Mastra](https://mastra.ai) agent with OpenAI `gpt-4o-mini` |
 | Auth | bcrypt password hashing, signed JWT session in an HttpOnly cookie |
 | Tooling | [Bun](https://bun.sh), Vitest, Biome |
 | Hosting and automation | Vercel, n8n |
@@ -67,8 +69,10 @@ Copy `.env.example` to `.env.local` and fill in:
 | `SUPABASE_SERVICE_ROLE_KEY` | The server key from the same page. Keep it secret: it is only used on the server |
 | `SESSION_SECRET` | Signs the sign-in cookie. Use at least 32 characters. Changing it signs everyone out |
 | `PRODUCTS_API_KEY` | Lets n8n and other clients create products. Only needed if you import products |
+| `OPENAI_API_KEY` | Lets the AI agent write product summaries. Without it, product pages say the summary isn't available |
+| `PRODUCT_SUMMARY_MODEL` | Optional. The model for summaries, such as `openai/gpt-4.1-mini`. Defaults to `openai/gpt-4o-mini` |
 
-Generate the two secrets with:
+Generate `SESSION_SECRET` and `PRODUCTS_API_KEY` with:
 
 ```sh
 openssl rand -base64 32
@@ -147,10 +151,12 @@ src/
   components/              header, Tally logo, account menu, avatar
   components/ui/           shadcn/ui components (generated)
   features/
+    summaries/             Tally's AI summary panel and its schema
     auth/                  sign-in and sign-up forms, hooks, schemas
     products/              product grid and cards, schemas
     evaluations/           product page, evaluation list and form, schemas
   server/                  server-only code
+    ai/                    Mastra summary agent and its cache
     services/              business logic, shared by REST and tRPC
     repositories/          database access (Supabase)
     http/                  REST handlers

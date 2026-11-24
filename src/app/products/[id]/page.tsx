@@ -14,9 +14,14 @@ import { ProductDetails } from "@/features/evaluations/components/product-detail
 import { ScoreSummary } from "@/features/evaluations/components/score-summary";
 import { SignInPrompt } from "@/features/evaluations/components/sign-in-prompt";
 import { formatDisplayName } from "@/features/evaluations/schemas";
+import {
+  ProductSummary,
+  ProductSummarySkeleton,
+} from "@/features/summaries/components/product-summary";
 import { getSession } from "@/server/auth/session";
 import { getEvaluationService, getProductService } from "@/server/container";
 import { ProductNotFoundError } from "@/server/errors";
+import { evaluationsFingerprint } from "@/server/services/summary-service";
 
 /** One product lookup per request, shared by the metadata and the page. */
 const getProduct = cache((id: string) => getProductService().getById(id));
@@ -86,6 +91,13 @@ async function ProductView({ id }: { id: string }) {
     >
       <div className="flex flex-col gap-16 sm:gap-20">
         <ProductDetails product={product} summary={<ScoreSummary />} />
+        {/* Streams in after the rest of the page; cached per set of evaluations. */}
+        <Suspense fallback={<ProductSummarySkeleton />}>
+          <ProductSummary
+            productId={product.id}
+            fingerprint={evaluationsFingerprint(evaluations)}
+          />
+        </Suspense>
         <div className="flex max-w-3xl flex-col gap-10">
           <section
             aria-labelledby="evaluations-title"
