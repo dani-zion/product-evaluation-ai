@@ -7,12 +7,24 @@
 <p align="center"><strong>Reads the reviews so you can buy with confidence.</strong></p>
 
 <p align="center">
-  <a href="#getting-started">Getting started</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#ai-summary">AI summary</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#api">API</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#project-structure">Project structure</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="docs/ARCHITECTURE.md">Architecture</a>
+  <a href="https://tally-product-evaluation-ai.vercel.app/"><strong>Try Tally live →</strong></a>
+</p>
+
+<p align="center">
+  <a href="#try-it">Try it</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#getting-started">Getting started</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#ai-summary">AI summary</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#api">API</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="#project-structure">Project structure</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="docs/ARCHITECTURE.md">Architecture</a>
 </p>
 
 ---
 
 Tally helps shoppers decide before they buy. It collects products from online stores, shows them in one place, and lets people score them and say what they think, so the next shopper gets a clear answer instead of a wall of reviews.
+
+## Try it
+
+Tally is live at **https://tally-product-evaluation-ai.vercel.app/**.
+
+1. Browse the products on the home page. No account needed.
+2. Open a product to read its evaluations and Tally's AI summary.
+3. Create an account to add your own evaluation and watch the score update.
 
 ## What you can do
 
